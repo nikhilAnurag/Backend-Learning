@@ -10,6 +10,7 @@ const bodyParser = require("body-parser");
 //import the error  controller to handle request to invalid URL
 const errorController = require("./controllers/error");
 
+//import the mongoose 
 const mongoose = require("mongoose");
 
 const mongoConnect = require("./util/database").mongoConnect;
