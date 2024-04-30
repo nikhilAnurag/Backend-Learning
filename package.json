@@ -1,0 +1,24 @@
+{
+  "name": "backend-learning",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "start-server": "node app.js"
+  },
+  "keywords": [],
+  "author": "Nikhil Anurag",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.2.4",
+    "pug": "^2.0.3",
+    "puppeteer": "^22.6.1"
+  }
+}
