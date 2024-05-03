@@ -7,6 +7,12 @@ const express = require("express");
 //import the body-parser as to parse the urlencoder body parsing
 const bodyParser = require("body-parser");
 
+//import session
+const session = require('express-session');
+
+//import mongodbSession
+const MongoDBStore = require('connect-mongodb-session')(session)
+
 //import the error  controller to handle request to invalid URL
 const errorController = require("./controllers/error");
 
@@ -17,13 +23,21 @@ const mongoConnect = require("./util/database").mongoConnect;
 
 const User = require("./models/user");
 
+const MONGODB_URI = "mongodb://localhost:27017/test";
+
 //initialize the express
 const app = express();
+
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection:'sessions'
+})
 
 //set the view engine to ejs
 app.set("view engine", "ejs");
 // set the directory for the views
 app.set("views", "views");
+
 
 //import the adminRoutes to handle url for admin purposes
 const adminRoutes = require("./routes/admin");
@@ -40,6 +54,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // static is  a middleware and it serve the static files and based on the static -serve
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(session({secret:'my secret',resave:false,saveUninitialized:false,
+store:store}));
+
 
 app.use((req, res, next) => {
   User.findById("661d03109a8498ed3f83c210")
