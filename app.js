@@ -60,10 +60,13 @@ store:store}));
 
 
 app.use((req, res, next) => {
-  User.findById("661d03109a8498ed3f83c210")
+  if(!req.session.user){
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
-      //console.log(req.user);
+      
       next();
     })
     .catch((err) => {
