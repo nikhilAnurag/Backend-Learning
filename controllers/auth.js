@@ -1,4 +1,5 @@
 const User = require('../models/user')
+const bcrypt = require('bcryptjs');
 
 exports.getLogin = (req,res,next)=>{
     const isLoggedIn  = req.session.isLoggedIn;
@@ -11,17 +12,39 @@ exports.getLogin = (req,res,next)=>{
     })
 }
 
+exports.getSignup = (req,res,next) =>{
+  res.render('auth/signup',{
+    path:'/signup',
+    pageTitle :'Signup Page',
+    isAuthenticated:req.session.isLoggedIn
+    
+  })
+}
+
 exports.postLogin = (req,res,next)=>{
-   
-   User.findById("661d03109a8498ed3f83c210")
+   const email = req.body.email;
+   const password = req.body.password;
+   User.findOne({email:email})
    .then((user) => {
-     //req.user = user;
-     req.session.user = user;
-     req.session.isLoggedIn = true;
-     //console.log(req.user);
-     req.session.save(err=>{
-      res.redirect('/');
+    if(!user){
+      res.redirect('/login');
+    }
+    bcrypt.compare(password,user.password).then(doMatch=>{
+      if(doMatch) {
+        req.session.user = user;
+        req.session.isLoggedIn = true;
+        //console.log(req.user);
+        return req.session.save(err=>{
+        res.redirect('/');
      })
+      }
+      res.redirect('/login');
+    }).catch(err=>{
+      console.log(err);
+      res.redirect('/login');
+    })
+     //req.user = user;
+     
    })
    .catch((err) => {
      console.log(err);
@@ -31,4 +54,31 @@ exports.postLogout = (req,res,next)=>{
     req.session.destroy(() =>{
         res.redirect('/');
     })
+}
+
+exports.postSignup = (req,res,next) =>{
+  const email = req.body.email;
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+  
+  
+    User.findOne({email:email}).then(userDoc=>{
+      if(userDoc){
+        return res.redirect('/signup');
+      }
+      return bcrypt.hash(password,12).then(hashedPassword=>{
+      const user = new User({
+        email:email,
+        password:hashedPassword,
+        cart:{ item:[]}
+      });
+       user.save();
+  
+    }).then(result => {
+      res.redirect('/login');
+     })
+  }).catch(err=>{
+    console.log(err);
+  })
+  
 }
