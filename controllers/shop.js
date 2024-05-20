@@ -11,7 +11,8 @@ exports.getProducts = (req, res, next) => {
       prods: products,
       pageTitle: 'All Products',
       path: '/products',
-      isAuthenticated : req.session.isLoggedIn
+      isAuthenticated : req.session.isLoggedIn,
+      csrfToken : req.csrfToken()
     });
   })
   .catch(err=>{
@@ -55,7 +56,8 @@ exports.getIndex = (req, res, next) => {
       prods: products,
       pageTitle: 'Shop',
       path: '/',
-      isAuthenticated : req.session.isLoggedIn
+      isAuthenticated : req.session.isLoggedIn,
+      
     });
   }).catch(err=>{
     console.log(err);
@@ -116,7 +118,7 @@ exports.postOrder = (req,res,next) =>{
       })
       let order = new Order({
         user:{
-          name : req.user.name,
+          email : req.user.email,
           userId : req.user._id
         },
         products:products

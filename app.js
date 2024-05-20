@@ -13,6 +13,8 @@ const session = require('express-session');
 //import mongodbSession
 const MongoDBStore = require('connect-mongodb-session')(session)
 
+const csrf = require('csurf');
+
 //import the error  controller to handle request to invalid URL
 const errorController = require("./controllers/error");
 
@@ -32,6 +34,8 @@ const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection:'sessions'
 })
+
+const csrfProtection = csrf()
 
 //set the view engine to ejs
 app.set("view engine", "ejs");
@@ -58,6 +62,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(session({secret:'my secret',resave:false,saveUninitialized:false,
 store:store}));
 
+app.use(csrfProtection);
 
 app.use((req, res, next) => {
   if(!req.session.user){
@@ -74,6 +79,13 @@ app.use((req, res, next) => {
     });
   // next();
 });
+
+app.use((req,res,next)=>{
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+})
+
 
 // use the admin middleware to path starting with the /admin path
 app.use("/admin", adminRoutes);
@@ -97,18 +109,18 @@ mongoose
     "mongodb://localhost:27017/test"
   )
   .then(() => {
-    User.findOne().then(user=>{
-      if(!user){
-        const user  = new User({
-          name: 'Nikhil',
-          email:'nik@gmail.com',
-          cart:{
-            items:[]
-          }
-        })
-        user.save();
-      }
-    })
+    // User.findOne().then(user=>{
+    //   if(!user){
+    //     const user  = new User({
+    //       name: 'Nikhil',
+    //       email:'nik@gmail.com',
+    //       cart:{
+    //         items:[]
+    //       }
+    //     })
+    //     user.save();
+    //   }
+    // })
     console.log('Server up at port: 5000');
     app.listen(5000);
   })
